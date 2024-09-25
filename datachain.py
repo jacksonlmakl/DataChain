@@ -4,6 +4,23 @@ import pandas as pd
 import msgpack
 import datetime
 
+
+def get_ip():
+    """
+    Returns the local IP address of the machine.
+    """
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        # Doesn't need to be reachable, just to get the local network IP
+        s.connect(('10.254.254.254', 1))
+        ip = s.getsockname()[0]
+    except Exception:
+        ip = '127.0.0.1'
+    finally:
+        s.close()
+    return ip
+
+
 def find_free_port():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind(('', 0))  # Bind to any free port available on the machine
@@ -14,6 +31,8 @@ class Connection:
         self.private_key=private_key
         self.public_key=public_key
         self.host=host
+        if not host:
+            self.host = get_ip()
         self.host_port=host_port
 
 
