@@ -77,7 +77,7 @@ def load_chain_from_disk(BASE_DIR):
 
 class Blockchain:
     def __init__(self, port,table_name):
-        self.dir = f'./datachain__{table_name}'
+        self.dir = f'./pychain__{table_name}'
         self.chain = load_chain_from_disk(self.dir)  # Load the blockchain from disk on startup
         self.transactions = []
         self.nodes = set()

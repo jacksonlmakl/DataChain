@@ -17,7 +17,7 @@ class Connection:
         self.host_port=host_port
 
 
-class DataChain:
+class PyChain:
     def __init__(self, table_name, connection):
         self.table_name=table_name
         self.port=find_free_port()
@@ -37,11 +37,14 @@ class DataChain:
         self.dir=self.chain.dir
 
         if set_keys:
-            self.set_ssh_keys([self.public_key])
+            try:
+                self.get_ssh_keys()
+            except:
+                self.set_ssh_keys([self.public_key])
         if not set_keys:
             if self.public_key not in self.get_ssh_keys():
-                self.chain.block("event__invalid_auth",{'public_key':self.public_key})
-                raise Exception("Your SSH key is not authorized, this incident has been recorded.")
+                raise Exception("Your SSH key is not authorized.")
+        self.allowed_ssh_keys = self.get_ssh_keys()
     def select(self):
         data=self.chain.chain
         unnest = [x for xs in [i.get('data') for i in data if i.get('data') and i.get('name')=='row'] for x in xs]
@@ -73,3 +76,19 @@ class DataChain:
         temp=list(latest_look['ssh_key'])
         allowed_keys=[ x for xs in temp for x in xs]
         return allowed_keys
+    def daemon(self):
+        print("Enter your Python code (press Enter twice to execute):")
+        while True:
+            print(">>")
+            user_code = ""
+            
+            while True:
+                line = input()
+                if line == "":
+                    break
+                user_code += line + "\n"
+        
+            try:
+                exec(user_code)
+            except Exception as e:
+                print(f"An error occurred: {e}")
