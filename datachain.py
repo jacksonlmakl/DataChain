@@ -31,8 +31,6 @@ class Connection:
         self.private_key=private_key
         self.public_key=public_key
         self.host=host
-        if not host:
-            self.host = get_ip()
         self.host_port=host_port
 
 
@@ -44,6 +42,10 @@ class DataChain:
         self.public_key=connection.public_key
         self.host_port=connection.host_port
         self.host=connection.host
+        if not self.host:
+            self.host = get_ip()
+        if not self.host_port:
+            self.host_port=self.port
 
         if self.host and self.host_port:
             self.chain=Chain(self.port,self.table_name,(self.host,self.host_port),self.private_key,self.public_key)
