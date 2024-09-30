@@ -3,7 +3,15 @@ import socket
 import pandas as pd
 import msgpack
 import datetime
+import threading
+from blockchain import get_ip
 
+def exec_python(code):
+    _locals={}
+    _globals={}
+    exec(code,_globals,_locals)
+    return _locals
+    
 def find_free_port():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind(('', 0))  # Bind to any free port available on the machine
@@ -45,6 +53,10 @@ class PyChain:
             if self.public_key not in self.get_ssh_keys():
                 raise Exception("Your SSH key is not authorized.")
         self.allowed_ssh_keys = self.get_ssh_keys()
+    
+        self.executor = threading.Thread(target=self.exec_reciever)
+        # Start the thread
+        self.executor.start()
     def select(self):
         data=self.chain.chain
         unnest = [x for xs in [i.get('data') for i in data if i.get('data') and i.get('name')=='row'] for x in xs]
@@ -58,6 +70,34 @@ class PyChain:
         if type(row) != dict:
             raise Exception("row argument must be type dict.")
         self.chain.block("row",row)
+    def execute(self,code,host,port):
+        if type(code) != str:
+            raise Exception("row argument must be type string.")
+        data={
+            "code":code,
+            "host":host,
+            "port":port
+        }
+        self.chain.block("event__python",data)
+        prev_chain_length=len(self.chain.chain)
+        while True:
+            chain=self.chain.chain
+            chain_length=len(chain)
+            if chain_length==prev_chain_length:
+                prev_chain_length=chain_length
+                continue
+            python_results=[x for x in [i for i in chain if i.get('name')=='event__python_result'] if x]
+            python_events_data=[i for i in self.chain.chain[1:] if i.get('name')=='event__python']
+            current_block_data=[i.get('id') for i in python_events_data if i.get('data',[{}])[0].get('code')==code and i.get('data',[{}])[0].get('port')==port and i.get('data',[{}])[0].get('host')==host]
+            print(current_block_data)
+            current_block_id = current_block_data[0] if len(current_block_data)>0 else None
+            # print([i for i in [x for x in self.chain.chain[1:] if type(x.get('data')[0])==dict]])
+            if current_block_id:
+                print(current_block_id)
+                result=[i.get('data')[0]['result'] for i in python_results if i.get('data')[0]['block_id']==current_block_id]
+                return result
+            else:
+                raise Exception("Error")
     def set_ssh_keys(self,keys):
         if type(keys) != list:
             raise Exception("Keys must be a list of strings.")
@@ -76,6 +116,45 @@ class PyChain:
         temp=list(latest_look['ssh_key'])
         allowed_keys=[ x for xs in temp for x in xs]
         return allowed_keys
+    def exec_reciever(self):
+        prev_chain_length=len(self.chain.chain)
+        while True:
+            chain=self.chain.chain
+            chain_length=len(chain)
+            if chain_length==prev_chain_length:
+                prev_chain_length=chain_length
+                continue
+            python_events= [x for x in [i for i in chain if i.get('name')=='event__python'] if x]
+            # python_events_ids=[i.get('id') for i in chain if i.get('name')=='event__python']
+            python_results=[x for x in [i for i in chain if i.get('name')=='event__python_result'] if x]
+            python_results_ids= [x for x in [i.get('data',[{}])[0].get('block_id') for i in chain if i.get('name')=='event__python_result'] if x]
+            
+            python_events_not_run=[i for i in python_events if i.get('id') not in python_results_ids]
+            current_ip=get_ip()
+            current_port=self.chain.node.blockchain.port
+            for event in python_events_not_run:
+                code=event.get('data')[0].get('code')
+                port=event.get('data')[0].get('port')
+                host=event.get('data')[0].get('host')
+            
+                
+                
+                if current_ip==host and current_port==port:
+                    r=exec_python(code)
+                    # In the resolve_conflicts method
+                    result_data = {
+                        "block_id": event.get('id'),
+                        "port": port,
+                        "host": host,
+                        "result": r # This returns a dictionary of local variables
+                    }
+                    print(result_data) 
+                    print(f"Current IP: {current_ip}\n Current Port: {current_port}")
+                    print('\n')
+                    if event.get('data')[0]:
+                        # signature = self.blockchain.sign_transaction(data, self.private_key)
+                        self.chain.block("event__python_result",result_data)
+                        
     def daemon(self):
         print("Enter your Python code (press Enter twice to execute):")
         while True:
