@@ -131,7 +131,7 @@ class PyChain:
             
             python_events_not_run=[i for i in python_events if i.get('id') not in python_results_ids]
             current_ip=get_ip()
-            current_port=self.chain.node.blockchain.port
+            current_port=self.chain.node.port
             for event in python_events_not_run:
                 code=event.get('data')[0].get('code')
                 port=event.get('data')[0].get('port')
