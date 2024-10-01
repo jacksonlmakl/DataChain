@@ -6,7 +6,7 @@ here = pathlib.Path(__file__).parent.resolve()
 long_description = (here / "README.md").read_text(encoding="utf-8")
 
 setup(
-    name='py-chain',
+    name='pythonchain',
     version='1.1',
     packages=find_packages(),
     install_requires=[
