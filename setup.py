@@ -6,8 +6,8 @@ here = pathlib.Path(__file__).parent.resolve()
 long_description = (here / "README.md").read_text(encoding="utf-8")
 
 setup(
-    name='pythonchain',
-    version='1.2',
+    name='ChainEngine',
+    version='1.3',
     packages=find_packages(),
     install_requires=[
         'requests',
