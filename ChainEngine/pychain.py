@@ -446,9 +446,12 @@ class Connection:
 
 
 class PyChain:
-    def __init__(self, table_name, connection):
+    def __init__(self, table_name, connection,port=None):
         self.table_name=table_name
-        self.port=find_free_port()
+        if not port:
+            self.port=find_free_port()
+        else:
+            self.port=port
         self.private_key=connection.private_key
         self.public_key=connection.public_key
         self.host_port=connection.host_port
