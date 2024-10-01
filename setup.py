@@ -7,7 +7,7 @@ long_description = (here / "README.md").read_text(encoding="utf-8")
 
 setup(
     name='ChainEngine',
-    version='1.4',
+    version='1.5',
     packages=find_packages(),
     install_requires=[
         'requests',
