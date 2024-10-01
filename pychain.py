@@ -5,12 +5,24 @@ import msgpack
 import datetime
 import threading
 from blockchain import get_ip
+import json
+import msgpack
+import sys
+
+def is_serializable(value):
+    try:
+        # Try to serialize using msgpack
+        msgpack.packb(value)
+        return True
+    except (TypeError, ValueError):
+        return False
+
 
 def exec_python(code):
     _locals={}
     _globals={}
-    exec(code,_globals,_locals)
-    return _locals
+    exec(code,_globals,local_locals)
+    return { i:_locals[i] for i in _locals if is_serializable(_locals[i]) }
     
 def find_free_port():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -140,7 +152,16 @@ class PyChain:
                 
                 
                 if current_ip==host and current_port==port:
-                    r=exec_python(code)
+                    chain_data=self.chain.chain
+                    sys.setrecursionlimit(10000)
+                    # r=exec_python(code)
+                    _globals={}
+                    _locals={'chain': self.select()}
+                    try:
+                        exec(code,_globals,_locals)
+                    except Exception as e_msg:
+                        _locals={"error_msg": str(e_msg)}
+                    r={ i:_locals[i] for i in _locals if is_serializable(_locals[i]) }
                     # In the resolve_conflicts method
                     result_data = {
                         "block_id": event.get('id'),
