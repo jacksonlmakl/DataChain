@@ -191,9 +191,9 @@ class PyChain:
                 print(f"An error occurred: {e}")
 
 
-
-def SSHKey():
-    private_key_str=None
-    public_key_str=None
-    r=create_or_load_keys(private_key_str=None, public_key_str=None)
-    return {'keys':{'private':r[2], 'public':r[3]}}
+class SSHKey:
+    def __init__():
+        private_key_str=None
+        public_key_str=None
+        r=create_or_load_keys(private_key_str=None, public_key_str=None)
+        self.keys= {'private':r[2], 'public':r[3]}
