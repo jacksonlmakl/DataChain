@@ -1,7 +1,5 @@
 .ipynb_checkpoints
 __pycache__
-Chain.ipynb
-*.ipynb
-*/datachain__*/
+*/pychain__*/
 venv/
 pychain__beta/

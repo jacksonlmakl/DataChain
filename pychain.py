@@ -1,4 +1,4 @@
-from blockchain import Chain
+from blockchain import Chain,create_or_load_keys
 import socket
 import pandas as pd
 import msgpack
@@ -101,11 +101,8 @@ class PyChain:
             python_results=[x for x in [i for i in chain if i.get('name')=='event__python_result'] if x]
             python_events_data=[i for i in self.chain.chain[1:] if i.get('name')=='event__python']
             current_block_data=[i.get('id') for i in python_events_data if i.get('data',[{}])[0].get('code')==code and i.get('data',[{}])[0].get('port')==port and i.get('data',[{}])[0].get('host')==host]
-            print(current_block_data)
             current_block_id = current_block_data[0] if len(current_block_data)>0 else None
-            # print([i for i in [x for x in self.chain.chain[1:] if type(x.get('data')[0])==dict]])
             if current_block_id:
-                print(current_block_id)
                 result=[i.get('data')[0]['result'] for i in python_results if i.get('data')[0]['block_id']==current_block_id]
                 return result
             else:
@@ -192,3 +189,11 @@ class PyChain:
                 exec(user_code)
             except Exception as e:
                 print(f"An error occurred: {e}")
+
+
+
+def SSHKey():
+    private_key_str=None
+    public_key_str=None
+    r=create_or_load_keys(private_key_str=None, public_key_str=None)
+    return {'keys':{'private':r[2], 'public':r[3]}}
