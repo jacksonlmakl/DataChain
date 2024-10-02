@@ -603,7 +603,7 @@ class PyChain:
 
 
 class SSHKey:
-    def __init__():
+    def __init__(self):
         private_key_str=None
         public_key_str=None
         r=create_or_load_keys(private_key_str=None, public_key_str=None)
