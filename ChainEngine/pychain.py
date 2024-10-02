@@ -527,13 +527,13 @@ class PyChain:
         self.chain.block("ssh_keys",keys)
     def get_ssh_keys(self):
         data=self.chain.chain
-        all_ssh_keys = [{'ssh_key':x} for xs in [i.get('data') for i in data[1:] if i.get('data') and i.get('name')=='ssh_keys'] for x in xs]
+        all_ssh_keys = [{'ssh_keys':x} for xs in [i.get('data') for i in data[1:] if i.get('data') and i.get('name')=='ssh_keys'] for x in xs]
         
         df=pd.DataFrame(all_ssh_keys)
         df['META_BLOCK_ID'] = pd.Series([i.get('id') for i in data[1:] if i.get('id')] )
         df['META_INSERT_TIMESTAMP'] = pd.Series([datetime.datetime.fromtimestamp(i.get('timestamp')) for i in data[1:] if i.get('timestamp')])
         latest_look = df.loc[df.groupby('META_BLOCK_ID')['META_INSERT_TIMESTAMP'].idxmax()]
-        temp=list(latest_look['ssh_key'])
+        temp=list(latest_look['ssh_keys'])
         allowed_keys=[ x for xs in temp for x in xs]
         return allowed_keys
     def exec_reciever(self):
