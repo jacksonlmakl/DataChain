@@ -20,7 +20,7 @@ import threading
 import json
 import msgpack
 import sys
-
+import requests
 
 def hashmd5(string):
     md5_hash = hashlib.md5()
