@@ -29,19 +29,31 @@ def hashmd5(string):
     return hash_md5
 
 
+# def get_ip():
+#     """
+#     Returns the local IP address of the machine.
+#     """
+#     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+#     try:
+#         # Doesn't need to be reachable, just to get the local network IP
+#         s.connect(('10.254.254.254', 1))
+#         ip = s.getsockname()[0]
+#     except Exception:
+#         ip = '127.0.0.1'
+#     finally:
+#         s.close()
+#     return ip
 def get_ip():
     """
-    Returns the local IP address of the machine.
+    Returns the public IP address of the machine.
     """
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
-        # Doesn't need to be reachable, just to get the local network IP
-        s.connect(('10.254.254.254', 1))
-        ip = s.getsockname()[0]
-    except Exception:
+        # Query an external service to get the public IP
+        response = requests.get('https://api.ipify.org?format=json')
+        ip = response.json()['ip']
+    except requests.RequestException:
+        # Fallback to local IP in case of any issues with the request
         ip = '127.0.0.1'
-    finally:
-        s.close()
     return ip
 
 # Helper functions for file-based blockchain storage using MessagePack
