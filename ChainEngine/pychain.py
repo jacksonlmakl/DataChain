@@ -49,11 +49,12 @@ def get_ip():
     """
     try:
         # Query an external service to get the public IP
-        response = requests.get('https://api.ipify.org?format=json')
+        response = requests.get('https://api64.ipify.org?format=json')
         ip = response.json()['ip']
-    except requests.RequestException:
+    except Exception as E:
         # Fallback to local IP in case of any issues with the request
         ip = '127.0.0.1'
+        print(E)
     return ip
 
 # Helper functions for file-based blockchain storage using MessagePack
